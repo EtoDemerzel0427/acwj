@@ -1,5 +1,7 @@
 package token
 
+import "fmt"
+
 type Token struct {
 	token    rune
 	intValue int  // only valid if token is Integer
@@ -25,6 +27,9 @@ var tokenStr = map[rune]string{
 
 func (t Token) String() string {
 	if s, ok := tokenStr[t.token]; ok {
+		if t.token == Integer {
+			s += fmt.Sprintf("(%d)", t.intValue)
+		}
 		return s
 	}
 	return "<unknown>"

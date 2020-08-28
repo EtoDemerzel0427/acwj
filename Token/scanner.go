@@ -11,23 +11,23 @@ import (
 
 // TODO: add more members
 type tokenScanner struct {
-	tok Token
+	Tok *Token
 	scanner.Scanner
 }
 
 // Encapsulate scanner.Init
-func (ts *tokenScanner) Init(reader io.Reader) *tokenScanner {
+func (ts *tokenScanner) init(reader io.Reader) *tokenScanner {
 	ts.Init(reader)
 
 	return ts
 }
 
 func NewScanner(reader io.Reader) *tokenScanner {
-	tsc := &tokenScanner{
-		tok: Token{-2, 0},
+	ts := &tokenScanner{
+		Tok: &Token{-2, 0}, // -2 indicates no token, not even EOF
 	}
 
-	return tsc.Init(reader)
+	return ts.init(reader)
 }
 
 // todo: add error handling in other func
@@ -78,30 +78,30 @@ func (ts *tokenScanner) scanInt(c rune) int {
 }
 
 
-func (ts *tokenScanner) Scan() int {
+func (ts *tokenScanner) Scan() (int, error) {
 	c := ts.skip() // go to the first non-whitespace char
 	switch c {
 	case scanner.EOF:
-		ts.tok.token = EOF
-		return 0
+		ts.Tok = &Token{token: EOF}
+		return 0, nil  // no token
 	case '+':
-		ts.tok.token = Plus
+		ts.Tok = &Token{token: Plus}
 	case '-':
-		ts.tok.token = Minus
+		ts.Tok = &Token{token: Minus}
 	case '*':
-		ts.tok.token = Aster
+		ts.Tok = &Token{token: Aster}
 	case '/':
-		ts.tok.token = Slash
+		ts.Tok = &Token{token: Slash}
 	default:
 		if unicode.IsDigit(c) {
-			ts.tok.token = Integer
-			ts.tok.intValue = ts.scanInt(c)
+			ts.Tok = &Token{token: Integer, intValue: ts.scanInt(c)}
 			break
 		}
 
-		ts.error("Unrecognized character.")
+		err := fmt.Errorf("Unrecognized character: %c.\n", c)
+		return 0, err
 	}
-	return 0
+	return 1, nil  // found one token
 }
 
 
