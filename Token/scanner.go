@@ -10,20 +10,20 @@ import (
 )
 
 // TODO: add more members
-type tokenScanner struct {
+type TokenScanner struct {
 	Tok *Token
 	scanner.Scanner
 }
 
 // Encapsulate scanner.Init
-func (ts *tokenScanner) init(reader io.Reader) *tokenScanner {
+func (ts *TokenScanner) init(reader io.Reader) *TokenScanner {
 	ts.Init(reader)
 
 	return ts
 }
 
-func NewScanner(reader io.Reader) *tokenScanner {
-	ts := &tokenScanner{
+func NewScanner(reader io.Reader) *TokenScanner {
+	ts := &TokenScanner{
 		Tok: &Token{-2, 0}, // -2 indicates no token, not even EOF
 	}
 
@@ -31,7 +31,7 @@ func NewScanner(reader io.Reader) *tokenScanner {
 }
 
 // todo: add error handling in other func
-func (ts *tokenScanner) error(msg string) {
+func (ts *TokenScanner) error(msg string) {
 	ts.ErrorCount++
 
 	pos := ts.Position
@@ -41,13 +41,13 @@ func (ts *tokenScanner) error(msg string) {
 	fmt.Fprintf(os.Stderr, "%s: %s\n", pos, msg)
 }
 
-func (ts *tokenScanner) errorf(format string, args ...interface{}) {
+func (ts *TokenScanner) errorf(format string, args ...interface{}) {
 	ts.error(fmt.Sprintf(format, args...))
 }
 
 // skip past input that we don't need to deal with (i.e, whitespaces)
 // Return the first character we do need to deal with.
-func (ts *tokenScanner) skip() rune {
+func (ts *TokenScanner) skip() rune {
 	c := ts.Next()
 	for c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\f' {
 		c = ts.Next()
@@ -57,7 +57,7 @@ func (ts *tokenScanner) skip() rune {
 
 // TODO: refer scanner/scanner scanNumber
 // scan and return an integer literal
-func (ts *tokenScanner) scanInt(c rune) int {
+func (ts *TokenScanner) scanInt(c rune) int {
 	// handle first digit, since c is already scanned.
 	k := strings.IndexRune("0123456789", c)  // must >= 0, since isDigit(c) is true
 	val := k
@@ -78,7 +78,7 @@ func (ts *tokenScanner) scanInt(c rune) int {
 }
 
 
-func (ts *tokenScanner) Scan() (int, error) {
+func (ts *TokenScanner) Scan() (int, error) {
 	c := ts.skip() // go to the first non-whitespace char
 	switch c {
 	case scanner.EOF:
