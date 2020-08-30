@@ -3,7 +3,6 @@ package token
 import (
 	"fmt"
 	"io"
-	"os"
 	"strings"
 	"text/scanner"
 	"unicode"
@@ -12,7 +11,7 @@ import (
 // TODO: add more members
 type TokenScanner struct {
 	Tok *Token
-	scanner.Scanner
+	Scanner
 }
 
 // Encapsulate scanner.Init
@@ -24,26 +23,12 @@ func (ts *TokenScanner) init(reader io.Reader) *TokenScanner {
 
 func NewScanner(reader io.Reader) *TokenScanner {
 	ts := &TokenScanner{
-		Tok: &Token{-2, 0}, // -2 indicates no token, not even EOF
+		Tok: &Token{0, 0}, // 0 indicates no token, not even EOF
 	}
 
 	return ts.init(reader)
 }
 
-// todo: add error handling in other func
-func (ts *TokenScanner) error(msg string) {
-	ts.ErrorCount++
-
-	pos := ts.Position
-	if !pos.IsValid() {
-		pos = ts.Pos()
-	}
-	fmt.Fprintf(os.Stderr, "%s: %s\n", pos, msg)
-}
-
-func (ts *TokenScanner) errorf(format string, args ...interface{}) {
-	ts.error(fmt.Sprintf(format, args...))
-}
 
 // skip past input that we don't need to deal with (i.e, whitespaces)
 // Return the first character we do need to deal with.

@@ -1,24 +1,33 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"github.com/EtoDemerzel0427/acwj/Parser"
 	token "github.com/EtoDemerzel0427/acwj/Token"
+	"log"
 	"os"
 )
 
 func main() {
-	ts := token.NewScanner(os.Stdin)  // currently use gocc < filename.c to avoid file manipulating.
-	for {
-		num, err := ts.Scan()
+	if len(os.Args) != 2 {
+		err := errors.New("should specify the C filename")
+		log.Fatal(err)
+	} else {
+		Infile, err := os.Open(os.Args[1])
 		if err != nil {
-			fmt.Fprintf(os.Stderr, err.Error())
+			log.Fatal(err)
+		}
+		defer Infile.Close()
+
+		ts := token.NewScanner(Infile)
+		p := Parser.NewParser(ts)
+
+		n := p.BinExpr()
+		v, err := Parser.InterpretTree(n)
+		if err == nil {
+			fmt.Printf("%d\n", v)
 		}
 
-		if num != 1 || err != nil {
-			break
-		}
-
-		fmt.Print(ts.Tok)
 	}
-	fmt.Print("\n")
 }

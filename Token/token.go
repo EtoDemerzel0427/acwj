@@ -25,6 +25,10 @@ var tokenStr = map[rune]string{
 	Integer: "int",
 }
 
+func NewToken(token rune, intValue int) *Token{
+	return &Token{token: token, intValue: intValue}
+}
+
 func (t Token) String() string {
 	if s, ok := tokenStr[t.token]; ok {
 		if t.token == Integer {
@@ -35,4 +39,11 @@ func (t Token) String() string {
 	return "<unknown>"
 }
 
+func (t Token) GetType() rune {
+	return t.token
+}
+
+func (t Token) GetValue() int {
+	return t.intValue
+}
 
