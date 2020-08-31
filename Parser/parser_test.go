@@ -24,7 +24,7 @@ func TestPrimary(t *testing.T) {
 func TestParser_BinExpr(t *testing.T) {
 	ts := token.NewScanner(strings.NewReader("2"))
 	p := NewParser(ts)
-	n := p.BinExpr()
+	n := p.BinExpr(0)
 	correct := ast.NewLeaf(ast.Integer, 2)
 	if !reflect.DeepEqual(correct, n) {
 		t.Errorf("Wrong value of n: %v", n)
@@ -34,7 +34,7 @@ func TestParser_BinExpr(t *testing.T) {
 	correct2 := ast.NewLeaf(ast.Integer, 151)
 	root := ast.NewNode(ast.Add, correct, correct2, 0)
 
-	n = p.BinExpr()
+	n = p.BinExpr(0)
 	if !reflect.DeepEqual(n, root) {
 		t.Errorf("Wrong value of n: %v", n)
 	} else if !reflect.DeepEqual(n.Left, correct) {

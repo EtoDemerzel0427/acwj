@@ -16,8 +16,25 @@ var tokMap = map[rune]rune{
 	token.Slash: ast.Div,
 }
 
+var opPrec = map[rune]int{
+	token.EOF:     0,
+	token.Plus:    10,
+	token.Minus:   10,
+	token.Aster:   20,
+	token.Slash:   20,
+	token.Integer: 0,
+}
+
 type Parser struct {
 	ts *token.TokenScanner
+}
+
+func OpPrecedence(t rune) (int, error) {
+	if prec, ok := opPrec[t]; ok {
+		return prec, nil
+	} else {
+		return -1, errors.New("Syntax error: Unrecognized op")
+	}
 }
 
 func NewParser(ts *token.TokenScanner) *Parser {
@@ -29,20 +46,20 @@ func NewParser(ts *token.TokenScanner) *Parser {
 func primary(t *token.Token) (*ast.Node, error) {
 	switch t.GetType() {
 	case token.Integer:
-		return  ast.NewLeaf(ast.Integer, t.GetValue()), nil
+		return ast.NewLeaf(ast.Integer, t.GetValue()), nil
 	default:
 		return nil, errors.New("Syntax error: Unexpected token type " + t.String())
 	}
 }
 
-func (p *Parser) next()  {
+func (p *Parser) next() {
 	_, err := p.ts.Scan()
 	if err != nil {
 		log.Fatal(p.ts.Pos().String() + ": " + err.Error())
 	}
 }
 
-func (p *Parser) BinExpr() *ast.Node {
+func (p *Parser) BinExpr(prec int) *ast.Node {
 	p.next()
 	left, err := primary(p.ts.Tok)
 	if err != nil {
@@ -50,15 +67,35 @@ func (p *Parser) BinExpr() *ast.Node {
 	}
 
 	p.next()
-	if p.ts.Tok.GetType() == ast.EOF {
+	t := p.ts.Tok.GetType()
+	if t == token.EOF {
 		return left
 	}
 
-	op := tok2op(p.ts.Tok.GetType())
+	for  {
+		nextPrec, err := OpPrecedence(t)
+		if err != nil {
+			log.Fatal(p.ts.Pos().String() + ": " + err.Error())
+		}
 
-	right := p.BinExpr()
+		if nextPrec <= prec {
+			break
+		}
 
-	return ast.NewNode(op, left, right, 0);
+		// p.next()
+		right := p.BinExpr(nextPrec)
+
+		left = ast.NewNode(tok2op(t), left, right, 0)
+
+		t = p.ts.Tok.GetType()  // update t
+		if t == token.EOF {
+			return left
+		}
+	}
+
+
+
+	return left
 }
 
 func tok2op(t rune) rune {
@@ -66,7 +103,7 @@ func tok2op(t rune) rune {
 		return op
 	}
 
-	return -2
+	return 0 // valid token ranges from -6 to -1
 }
 
 func InterpretTree(n *ast.Node) (int, error) {
