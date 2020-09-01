@@ -30,7 +30,7 @@ type Parser struct {
 }
 
 func OpPrecedence(t rune) (int, error) {
-	if prec, ok := opPrec[t]; ok {
+	if prec, ok := opPrec[t]; ok && prec != 0 {
 		return prec, nil
 	} else {
 		return -1, errors.New("Syntax error: Unrecognized op")

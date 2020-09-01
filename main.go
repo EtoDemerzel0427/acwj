@@ -23,7 +23,7 @@ func main() {
 		ts := token.NewScanner(Infile)
 		p := Parser.NewParser(ts)
 
-		n := p.BinExpr(-1)
+		n := p.BinExpr(0)
 		v, err := Parser.InterpretTree(n)
 		if err == nil {
 			fmt.Printf("%d\n", v)
