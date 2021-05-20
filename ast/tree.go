@@ -64,7 +64,7 @@ func (n Node) String() string {
 	return "<unknown>\n"
 }
 
-// build and return a generic AST node
+// NewNode build and return a generic AST node
 func NewNode(op rune, left *Node, right *Node, intValue int) *Node {
 	return &Node{
 		Op:       op,
@@ -74,12 +74,12 @@ func NewNode(op rune, left *Node, right *Node, intValue int) *Node {
 	}
 }
 
-// make an AST leaf node
+// NewLeaf make an AST leaf node
 func NewLeaf(op rune, intValue int) *Node {
 	return NewNode(op, nil, nil, intValue)
 }
 
-// make an unary AST node, only one child
+// NewUnary make an unary AST node, only one child
 func NewUnary(op rune, child *Node, intValue int) *Node {
 	return NewNode(op, child, nil, intValue)
 }

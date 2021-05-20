@@ -16,6 +16,7 @@ var tokMap = map[rune]rune{
 	token.Slash: ast.Div,
 }
 
+// the precedence of ops, larger means higher.
 var opPrec = map[rune]int{
 	token.EOF:     0,
 	token.Plus:    10,
@@ -33,7 +34,7 @@ func OpPrecedence(t rune) (int, error) {
 	if prec, ok := opPrec[t]; ok && prec != 0 {
 		return prec, nil
 	} else {
-		return -1, errors.New("Syntax error: Unrecognized op")
+		return -1, errors.New("syntax error: Unrecognized op")
 	}
 }
 
@@ -48,7 +49,7 @@ func primary(t *token.Token) (*ast.Node, error) {
 	case token.Integer:
 		return ast.NewLeaf(ast.Integer, t.GetValue()), nil
 	default:
-		return nil, errors.New("Syntax error: Unexpected token type " + t.String())
+		return nil, errors.New("syntax error: Unexpected token type " + t.String())
 	}
 }
 
@@ -136,7 +137,7 @@ func InterpretTree(n *ast.Node) (int, error) {
 	case ast.Integer:
 		return n.IntValue, nil
 	default:
-		return 0, errors.New("Unknown AST node.\n")
+		return 0, errors.New("unknown AST node.\n")
 
 	}
 }
